@@ -2,15 +2,22 @@ from enum import Enum
 
 class TokenType(Enum):
     LEFT_BRACE = 1
-
+    RIGHT_BRACE = 2
+    LEFT_PAREN = 3
+    RIGHT_PAREN = 4
+    STAR = 5
+    PLUS = 6
+    MINUS = 7
+    COMMA = 8
+    DOT = 9
 
 class Token:
     def __init__(self, tt: TokenType, lexeme: str) -> None:
-        self.tt = tt
-        self.literal = lexeme
+        self.token_type = tt
+        self.lexeme = lexeme
 
     def __repr__(self) -> str:
-        return f"{self.tt}, {self.literal}"
+        return f"{self.token_type} {self.lexeme}"
 
 class Lexer:
     def __init__(self, source) -> None:
@@ -26,9 +33,26 @@ class Lexer:
             self._consume_character()
 
     def _consume_character(self) -> None:
-        c: str = self.eat_and_move_on()
-        if c == "{":
+        current_character: str = self.eat_and_move_on()
+
+        if current_character == '{':
             self.generate_and_add_token(TokenType.LEFT_BRACE.name)
+        if current_character == '}':
+            self.generate_and_add_token(TokenType.RIGHT_BRACE.name)
+        if current_character == '(':
+            self.generate_and_add_token(TokenType.LEFT_PAREN.name)
+        if current_character == ')':
+            self.generate_and_add_token(TokenType.RIGHT_PAREN.name)
+        if current_character == '*':
+            self.generate_and_add_token(TokenType.STAR.name)
+        if current_character == '+':
+            self.generate_and_add_token(TokenType.PLUS.name)
+        if current_character == '-':
+            self.generate_and_add_token(TokenType.MINUS.name)
+        if current_character == ',':
+            self.generate_and_add_token(TokenType.COMMA.name)
+        if current_character == '.':
+            self.generate_and_add_token(TokenType.DOT.name)
 
     def generate_and_add_token(self, tt: TokenType) -> None:
         text: str = self.source[self.start_position:self.current_position]
@@ -42,7 +66,11 @@ class Lexer:
     def isAtEnd(self) -> bool:
         return self.current_position >= len(self.source)
 
+    def print_tokens(self) -> None:
+        print(self.tokens)
+
 if __name__ == "__main__":
-    source: str = "{"
+    source: str = "{}{}{}()+-*,."
     lexer = Lexer(source)
     lexer.consume_characters()
+    lexer.print_tokens()
