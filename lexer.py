@@ -20,6 +20,22 @@ class TokenType(Enum):
     GREATER_THAN = 16
     GREATER_THAN_EQUAL = 17
 
+    # Keywords
+    AND = 18
+    OR = 19
+    NOT = 20
+    IF = 21
+    ELIF = 22
+    ELSE = 23
+    WHILE = 24
+    FOR = 25
+    BREAK = 26
+    CONTINUE = 27
+    DEF = 28
+    RETURN = 29
+    CLASS = 30
+    PRINT = 31
+
 class Token:
     def __init__(self, tt: TokenType, lexeme: str) -> None:
         self.token_type = tt
@@ -29,6 +45,24 @@ class Token:
         return f"{self.token_type} {self.lexeme}"
 
 class Lexer:
+
+    KEYWORDS = {
+        "and": TokenType.AND.name,
+        "or": TokenType.OR.name,
+        "not": TokenType.NOT.name,
+        "if": TokenType.IF.name,
+        "elif": TokenType.ELIF.name,
+        "else": TokenType.ELSE.name,
+        "while": TokenType.WHILE.name,
+        "for": TokenType.FOR.name,
+        "break": TokenType.BREAK.name,
+        "continue": TokenType.CONTINUE.name,
+        "def": TokenType.DEF.name,
+        "return": TokenType.RETURN.name,
+        "class": TokenType.CLASS.name,
+        "print": TokenType.PRINT.name
+    }
+
     def __init__(self, source) -> None:
         self.source = source
         self.start_position = 0
@@ -81,6 +115,15 @@ class Lexer:
                 TokenType.GREATER_THAN_EQUAL.name if self.match_next_character('=') else TokenType.GREATER_THAN.name
             )
 
+        if current_character.isalpha():
+            while (self.peek().isalpha()):
+                self.eat_and_move_on()
+            keyword: str = self.source[self.start_position:self.current_position]
+            self.generate_and_add_token(
+                Lexer.KEYWORDS.get(keyword, None)
+            )
+
+
     def generate_and_add_token(self, tt: TokenType) -> None:
         text: str = self.source[self.start_position:self.current_position]
         token = Token(tt, text)
@@ -99,6 +142,10 @@ class Lexer:
         self.current_position = self.current_position + 1
         return True
 
+    def peek(self) -> chr:
+        if self.isAtEnd(): return '\0'
+        return self.source[self.current_position]
+
     def isAtEnd(self) -> bool:
         return self.current_position >= len(self.source)
 
@@ -112,7 +159,7 @@ class Lexer:
         print(self.tokens)
 
 if __name__ == "__main__":
-    source: str = "!===<=>=<>! ="
+    source: str = "and or not if elif else while for break continue def return class print orand"
     lexer = Lexer(source)
     lexer.consume_characters()
     lexer.print_tokens()
