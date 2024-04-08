@@ -11,6 +11,15 @@ class TokenType(Enum):
     COMMA = 8
     DOT = 9
 
+    BANG = 10
+    BANG_EQUAL = 11
+    EQUAL = 12
+    EQUAL_EQUAL = 13
+    LESS_THAN = 14
+    LESS_THAN_EQUAL = 15
+    GREATER_THAN = 16
+    GREATER_THAN_EQUAL = 17
+
 class Token:
     def __init__(self, tt: TokenType, lexeme: str) -> None:
         self.token_type = tt
@@ -53,6 +62,24 @@ class Lexer:
             self.generate_and_add_token(TokenType.COMMA.name)
         if current_character == '.':
             self.generate_and_add_token(TokenType.DOT.name)
+        if self.isWhitespace(current_character):
+            return
+        if current_character == '!':
+            self.generate_and_add_token(
+                TokenType.BANG_EQUAL.name if self.match_next_character('=') else TokenType.BANG.name
+            )
+        if current_character == '=':
+            self.generate_and_add_token(
+                TokenType.EQUAL_EQUAL.name if self.match_next_character('=') else TokenType.EQUAL.name
+            )
+        if current_character == '<':
+            self.generate_and_add_token(
+                TokenType.LESS_THAN_EQUAL.name if self.match_next_character('=') else TokenType.LESS_THAN.name
+            )
+        if current_character == '>':
+            self.generate_and_add_token(
+                TokenType.GREATER_THAN_EQUAL.name if self.match_next_character('=') else TokenType.GREATER_THAN.name
+            )
 
     def generate_and_add_token(self, tt: TokenType) -> None:
         text: str = self.source[self.start_position:self.current_position]
@@ -63,14 +90,29 @@ class Lexer:
         self.current_position = self.current_position + 1
         return self.source[self.current_position - 1]
 
+    def match_next_character(self, expected_character: str) -> bool:
+        if self.isAtEnd(): return False
+        if (self.source[self.current_position] != expected_character): return False
+        
+        # Since its a match we have to consume(eat) the character.
+        # That is why we are incrementing the current_position value
+        self.current_position = self.current_position + 1
+        return True
+
     def isAtEnd(self) -> bool:
         return self.current_position >= len(self.source)
+
+    def isWhitespace(self, c: str) -> bool:
+        SPACE = ' '
+        NEWLINE = '\n'
+        CARRIAGE_RETURN = '\r'
+        return c in [SPACE, NEWLINE, CARRIAGE_RETURN]
 
     def print_tokens(self) -> None:
         print(self.tokens)
 
 if __name__ == "__main__":
-    source: str = "{}{}{}()+-*,."
+    source: str = "!===<=>=<>! ="
     lexer = Lexer(source)
     lexer.consume_characters()
     lexer.print_tokens()
