@@ -37,12 +37,12 @@ class TokenType(Enum):
     PRINT = 31
 
 class Token:
-    def __init__(self, tt: TokenType, lexeme: str) -> None:
+    def __init__(self, tt: TokenType, value: str) -> None:
         self.token_type = tt
-        self.lexeme = lexeme
+        self.value = value
 
     def __repr__(self) -> str:
-        return f"{self.token_type} {self.lexeme}"
+        return f"{self.token_type} {self.value}"
 
 class Lexer:
 
